@@ -3,13 +3,11 @@ import os
 import pandas as pd
 import streamlit as st 
 
-from data.gamelogs import get_gamelog_path_map
-from bi.sidebar import display_sidebar
+import bi.elements as business_analytics
 
 
 def main():
-    path_map = get_gamelog_path_map()
-    dataframe = display_sidebar(path_map)
+    dataframe = business_analytics.display_sidebar()
     
     st.header("Hello")
     with st.expander(label="Dataset"):
