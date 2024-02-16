@@ -1,6 +1,3 @@
-import os
-
-import pandas as pd
 import streamlit as st 
 
 from data.gamelogs import get_gamelog_path_map
