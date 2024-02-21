@@ -1,18 +1,18 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 import streamlit as st
+import pandas as pd
+
+from data.gamelogs import get_gamelog
+import service.gamelogs as service
 
 
-def _read_hudl_export(path: str) -> pd.DataFrame:
-    return pd.read_excel(path)
-
-def display_sidebar(games: dict) -> str:
+def display_sidebar(games: dict) -> pd.DataFrame:
     with st.sidebar:
         selection = st.selectbox(label="Games", options=games.keys())
 
         if st.button("Load Dataset"):
-            return _read_hudl_export(games.get(selection))
+            return get_gamelog(games.get(selection))
 
 
 def display_momentum(games:dict) -> str:
@@ -57,7 +57,31 @@ def display_momentum(games:dict) -> str:
             ax.text(i, ax.get_ylim()[1]-2, f"Q{quarter}", color='white', ha='left', va='bottom')
             quarter += 1
     ax.set_facecolor('lightsteelblue')
-    # Diagramm anzeigen
-    # plt.show()
+    st.pyplot(fig)
+    return
+
+
+def display_xp(data) -> None:
+    xp_scout_final = service.calculate_cumulative_xp(data, "O")
+    xp_opp_final = service.calculate_cumulative_xp(data, "D")
+
+    # Linienplot erstellen
+    fig, ax = plt.subplots(figsize=(10, 6))
+    
+    # Points
+    ax.plot(data[data["ODK"] == "O"]["SCORE SCOUT"], color='grey', linestyle='-', label='Scout Points')
+    ax.plot(xp_scout_final, color='grey', linestyle='--', label='Scout Expected Points', lw=0.5)
+
+    ax.plot(data[data["ODK"] == "D"]["SCORE OPP"], color='navy', linestyle='-', label='Opponent Points')
+    ax.plot(xp_opp_final, color='navy', linestyle='--', label='Opponent Expected Points', lw=0.5)
+
+    # Legende hinzufügen
+    ax.legend()
+
+    # Titel und Achsenbeschriftungen
+    ax.set_title('Play by Play Performance')
+    ax.set_xlabel('Plays')
+    ax.set_ylabel('Points')
+
     st.pyplot(fig)
     return
